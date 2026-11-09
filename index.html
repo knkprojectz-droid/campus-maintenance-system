@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Maintenance & Complaint Tracking System | Online Smart Campus</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Supabase Official JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Top Informational Bar -->
+  <div class="top-notice-bar">
+    <div class="campus-info">
+      <span><i class="fas fa-university"></i> Smart Campus Facility & Estate Management</span>
+      <span><i class="fas fa-clock"></i> 24/7 Rapid Complaint Resolution Desk</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.8rem;">
+      <!-- Supabase Cloud Connection Status Indicator -->
+      <span class="backend-pill local" id="backendStatusPill" title="Click to configure Supabase Cloud Backend">
+        <i class="fas fa-database"></i> Backend: Local / Demo (Connect Supabase)
+      </span>
+    </div>
+  </div>
+
+  <!-- Main Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo-area" data-target-view="homeView">
+        <div class="logo-icon">
+          <i class="fas fa-tools"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Smart Campus Maintenance</h1>
+          <span>Complaint & Facility Tracking System</span>
+        </div>
+      </div>
+
+      <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active" data-target-view="homeView"><i class="fas fa-home"></i> Home</a></li>
+        <li id="navItemSubmitComplaint"><a href="#submit" class="nav-link" data-target-view="submitView"><i class="fas fa-plus-circle"></i> Submit Complaint</a></li>
+        <li><a href="#track" class="nav-link" data-target-view="trackStatusView"><i class="fas fa-search-location"></i> Complaint Status</a></li>
+        <li><a href="#dashboard" class="nav-link" data-target-view="dashboardView"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li><a href="#staff" class="nav-link" data-target-view="staffView"><i class="fas fa-user-cog"></i> Maintenance Staff</a></li>
+        <li><a href="#feedback" class="nav-link" data-target-view="feedbackView"><i class="fas fa-star"></i> Feedback</a></li>
+      </ul>
+
+      <div class="auth-nav-area">
+        <button class="btn-login" id="loginNavBtn">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        <div class="user-badge" id="userProfileArea" style="display: none;">
+          <i class="fas fa-user-circle" style="font-size: 1.1rem; color: #2563eb;"></i>
+          <span id="loggedUserName">User</span>
+          <span class="role-tag" id="loggedUserRole">Role</span>
+          <button class="btn-logout" id="logoutBtn" title="Logout">
+            <i class="fas fa-power-off"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content (SPA Views) -->
+  <main class="main-wrapper">
+
+    <!-- ================= 1. HOME VIEW ================= -->
+    <section id="homeView" class="page-view active-view">
+      <!-- Hero Banner -->
+      <div class="hero-card">
+        <div class="hero-content">
+          <div class="hero-pill">
+            <i class="fas fa-check-circle"></i> Official Campus Portal
+          </div>
+          <h2 class="hero-title">Campus Maintenance and Complaint Tracking System</h2>
+          <p class="hero-subtitle">
+            An intuitive web-based application developed to manage campus maintenance complaints efficiently. 
+            Students can seamlessly register issues, while maintenance staff track, assign, and resolve them from 
+            <strong>Pending</strong> to <strong>In Progress</strong> and <strong>Resolved</strong>.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-primary-action" data-target-view="submitView">
+              <i class="fas fa-paper-plane"></i> Submit a Complaint
+            </button>
+            <button class="btn-secondary-action" data-target-view="trackStatusView">
+              <i class="fas fa-search"></i> Check Complaint Status
+            </button>
+            <button class="btn-secondary-action" data-target-view="dashboardView">
+              <i class="fas fa-th-large"></i> View Live Dashboard
+            </button>
+            <button class="btn-secondary-action" onclick="openModal('supabaseConfigModal')">
+              <i class="fas fa-server"></i> Supabase Backend Setup
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow Chart Section (From Image 1) -->
+      <div class="flowchart-container">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">System Workflow (Flow Chart)</h3>
+            <p class="section-desc">Streamlined step-by-step lifecycle of campus maintenance requests</p>
+          </div>
+        </div>
+
+        <div class="flowchart-steps">
+          <div class="flow-step">
+            <div class="flow-icon"><i class="fas fa-user-lock"></i></div>
+            <div class="flow-title">1. Login</div>
+            <div class="flow-subtitle">Student / Staff / Admin</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+          <div class="flow-step">
+            <div class="flow-icon"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="flow-title">2. Dashboard</div>
+            <div class="flow-subtitle">Overview & metrics</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+          <div class="flow-step">
+            <div class="flow-icon"><i class="fas fa-file-signature"></i></div>
+            <div class="flow-title">3. Submit Complaint</div>
+            <div class="flow-subtitle">Register issue with details</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+          <div class="flow-step">
+            <div class="flow-icon"><i class="fas fa-user-tag"></i></div>
+            <div class="flow-title">4. Assign Staff</div>
+            <div class="flow-subtitle">Allocate technician</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+          <div class="flow-step">
+            <div class="flow-icon"><i class="fas fa-check-double"></i></div>
+            <div class="flow-title">5. Resolve Complaint</div>
+            <div class="flow-subtitle">Add remarks & close</div>
+          </div>
+          <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+          <div class="flow-step">
+            <div class="flow-icon" style="border-color: #10b981; color: #10b981;"><i class="fas fa-flag-checkered"></i></div>
+            <div class="flow-title">6. End / Feedback</div>
+            <div class="flow-subtitle">Rate completed service</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Section (From Image 2 & 5) -->
+      <div class="section-header">
+        <div>
+          <h3 class="section-title">Maintenance Complaint Categories</h3>
+          <p class="section-desc">Selectable issue areas covering all physical and digital campus infrastructure</p>
+        </div>
+      </div>
+
+      <div class="categories-grid">
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-electrical"><i class="fas fa-bolt"></i></div>
+          <div class="cat-details">
+            <h4>Electrical Problems</h4>
+            <p>Fans, lights, wiring, power sockets, switchboards, ACs, and electrical supply issues.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-plumbing"><i class="fas fa-faucet"></i></div>
+          <div class="cat-details">
+            <h4>Plumbing</h4>
+            <p>Washroom taps, pipeline leakages, drainage blockage, water coolers, and tank maintenance.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-cleaning"><i class="fas fa-broom"></i></div>
+          <div class="cat-details">
+            <h4>Cleaning & Hygiene</h4>
+            <p>Classroom floor cleaning, trash disposal, corridor hygiene, and restroom sanitation.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-furniture"><i class="fas fa-chair"></i></div>
+          <div class="cat-details">
+            <h4>Furniture</h4>
+            <p>Damaged desks, broken chairs, podiums, whiteboards, doors, and window latch repairs.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-internet"><i class="fas fa-wifi"></i></div>
+          <div class="cat-details">
+            <h4>Internet Connectivity</h4>
+            <p>Campus Wi-Fi drops, LAN ports, Ethernet switches, intranet portal accessibility.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-classrooms"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div class="cat-details">
+            <h4>Classrooms</h4>
+            <p>Projectors, audio systems, smartboards, ventilation, and lecture hall amenities.</p>
+          </div>
+        </div>
+
+        <div class="category-card" data-target-view="submitView">
+          <div class="cat-icon-box cat-laboratories"><i class="fas fa-flask"></i></div>
+          <div class="cat-details">
+            <h4>Laboratories</h4>
+            <p>Lab equipment power, chemical fume hoods, test bench gas supply, computer lab PCs.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Specifications (Hardware & Software from Image 3) -->
+      <div class="section-header">
+        <div>
+          <h3 class="section-title">System Technical Specifications</h3>
+          <p class="section-desc">Hardware and software configurations documented for deployment</p>
+        </div>
+      </div>
+
+      <div class="specs-container">
+        <!-- Hardware Specs -->
+        <div class="spec-card">
+          <div class="spec-card-header">
+            <i class="fas fa-server"></i>
+            <div>
+              <h3>Hardware Configuration</h3>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Minimum baseline requirements</span>
+            </div>
+          </div>
+          <ul class="spec-list">
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-microchip"></i> Processor</span>
+              <span class="spec-value">Intel Core i3 or above</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-memory"></i> RAM</span>
+              <span class="spec-value">4 GB or above</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-hdd"></i> Hard Disk</span>
+              <span class="spec-value">20 GB free space</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-desktop"></i> Monitor</span>
+              <span class="spec-value">1366 x 768 resolution or above</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-keyboard"></i> Peripherals</span>
+              <span class="spec-value">Standard Keyboard & Mouse</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Software Specs -->
+        <div class="spec-card">
+          <div class="spec-card-header">
+            <i class="fas fa-laptop-code"></i>
+            <div>
+              <h3>Software Configuration</h3>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Technology stack & tools</span>
+            </div>
+          </div>
+          <ul class="spec-list">
+            <li class="spec-item">
+              <span class="spec-label"><i class="fab fa-windows"></i> Operating System</span>
+              <span class="spec-value">Windows 10 / 11</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-code"></i> Backend & DB</span>
+              <span class="spec-value">Supabase (PostgreSQL) / C# ASP.NET</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fab fa-html5"></i> Frontend</span>
+              <span class="spec-value">HTML5, CSS3, JavaScript</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-database"></i> Database Engine</span>
+              <span class="spec-value">Supabase Cloud PostgreSQL</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fas fa-bolt"></i> Realtime Sync</span>
+              <span class="spec-value">Supabase Realtime WebSockets</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-label"><i class="fab fa-chrome"></i> Supported Browsers</span>
+              <span class="spec-value">Google Chrome / Microsoft Edge</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2. SUBMIT COMPLAINT VIEW (Image 5 Wireframe) ================= -->
+    <section id="submitView" class="page-view">
+      <div class="form-panel">
+        <div class="form-panel-header">
+          <h2>Submit Complaint</h2>
+          <p>Register a new maintenance or repair issue for the campus facilities team</p>
+        </div>
+
+        <form id="submitComplaintForm">
+          <div class="form-grid">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="studentName">Student Name <span class="required">*</span></label>
+                <input type="text" id="studentName" class="form-control" placeholder="Enter Student Name" required>
+              </div>
+
+              <div class="form-group">
+                <label for="studentID">Student ID <span class="required">*</span></label>
+                <input type="text" id="studentID" class="form-control" placeholder="Enter Roll No / Student ID (e.g. 2024CS01)" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="complaintLocation">Location <span class="required">*</span></label>
+              <input type="text" id="complaintLocation" class="form-control" placeholder="Enter Complaint Location (e.g. Block B, Lab 203, Library)" required>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="complaintCategory">Complaint Category <span class="required">*</span></label>
+                <select id="complaintCategory" class="form-control" required>
+                  <option value="" disabled selected>Select category ▼</option>
+                  <option value="Electrical">Electrical</option>
+                  <option value="Plumbing">Plumbing</option>
+                  <option value="Cleaning">Cleaning & Hygiene</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Internet Connectivity">Internet Connectivity</option>
+                  <option value="Classrooms">Classrooms</option>
+                  <option value="Laboratories">Laboratories</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="complaintDate">Complaint Date <span class="required">*</span></label>
+                <input type="date" id="complaintDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="complaintDescription">Issue Description / Details</label>
+              <textarea id="complaintDescription" class="form-control" placeholder="Briefly describe the maintenance problem so staff can bring the right tools..."></textarea>
+            </div>
+          </div>
+
+          <!-- Buttons matching Image 5: [submit complaint] [Reset] -->
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-check"></i> Submit Complaint
+            </button>
+            <button type="button" class="btn-reset" id="resetComplaintBtn">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ================= 3. TRACK COMPLAINT STATUS VIEW (Image 2 & 4) ================= -->
+    <section id="trackStatusView" class="page-view">
+      <div class="track-search-box">
+        <h2 style="font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem;">Track Complaint Status</h2>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">
+          Track your registered complaint's real-time progress from Pending to In Progress and Resolved.
+        </p>
+
+        <div class="track-input-group">
+          <input type="text" id="trackComplaintIdInput" class="form-control" placeholder="Enter Complaint ID (e.g. CMP-1001) or Student ID...">
+          <button class="btn-submit" id="searchTrackBtn" style="white-space: nowrap;">
+            <i class="fas fa-search"></i> Track Status
+          </button>
+        </div>
+      </div>
+
+      <div id="trackResultContainer">
+        <!-- Rendered dynamically by app.js -->
+        <div style="text-align: center; padding: 2rem; color: #64748b;">
+          <i class="fas fa-search-location" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; display: block;"></i>
+          Enter your Complaint ID (or click "View" on any record in the Dashboard) to inspect the live status.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. DASHBOARD VIEW (Image 1, 2, 4) ================= -->
+    <section id="dashboardView" class="page-view">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="dashboardTitle">Campus Maintenance Dashboard</h2>
+          <p class="section-desc" id="dashboardSubtitle">Real-time status overview of maintenance requests</p>
+        </div>
+        <div id="dashboardUserBadge" style="font-size: 0.85rem; font-weight: 600; color: var(--primary-light); background: #eff6ff; padding: 6px 14px; border-radius: var(--radius-full);">
+          Guest Overview
+        </div>
+      </div>
+
+      <!-- Role-Specific Banner Alert -->
+      <div class="role-dashboard-banner" id="roleDashboardBanner">
+        <div id="roleBannerText">
+          <strong><i class="fas fa-info-circle"></i> Public Overview:</strong> Please sign in as a <strong>Student</strong> (to view your submitted issues), <strong>Staff</strong> (to view allocated maintenance jobs), or <strong>Admin</strong> (to manage and allocate staff).
+        </div>
+        <button class="btn-login" id="dashboardLoginPromptBtn" style="padding: 0.4rem 1rem; font-size: 0.82rem;">
+          <i class="fas fa-sign-in-alt"></i> Login Now
+        </button>
+      </div>
+
+      <!-- Stats Counters -->
+      <div class="dashboard-stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-total"><i class="fas fa-folder-open"></i></div>
+          <div class="stat-info">
+            <h3 id="statTotal">0</h3>
+            <span id="labelStatTotal">Total Complaints</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-pending"><i class="fas fa-hourglass-start"></i></div>
+          <div class="stat-info">
+            <h3 id="statPending">0</h3>
+            <span id="labelStatPending">Pending</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-progress"><i class="fas fa-tools"></i></div>
+          <div class="stat-info">
+            <h3 id="statInProgress">0</h3>
+            <span id="labelStatProgress">In Progress</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-resolved"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-info">
+            <h3 id="statResolved">0</h3>
+            <span id="labelStatResolved">Resolved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Complaints Data Table (Table 2: Complaints) -->
+      <div class="table-panel">
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <input type="text" id="dashboardSearch" class="table-search-input" placeholder="Search ID, location, details...">
+            
+            <select id="dashboardStatusFilter" class="table-filter-select">
+              <option value="all">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+
+            <select id="dashboardCategoryFilter" class="table-filter-select">
+              <option value="all">All Categories</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Cleaning">Cleaning</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Internet Connectivity">Internet Connectivity</option>
+              <option value="Classrooms">Classrooms</option>
+              <option value="Laboratories">Laboratories</option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; align-items: center;" id="dashboardActionButtonsArea">
+            <button class="btn-submit" data-target-view="submitView" id="dashboardNewComplaintBtn" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+              <i class="fas fa-plus"></i> Submit New Complaint
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Complaint ID</th>
+                <th>Student (Roll No)</th>
+                <th>Location</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Assigned Staff</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="complaintsTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. STAFF VIEW (Table 3: Staff) ================= -->
+    <section id="staffView" class="page-view">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Campus Maintenance Staff Directory</h2>
+          <p class="section-desc">On-duty technical personnel assigned to resolve campus maintenance requests</p>
+        </div>
+      </div>
+
+      <div class="table-panel">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Staff ID</th>
+                <th>Staff Name</th>
+                <th>Assigned Department</th>
+                <th>Phone / Contact</th>
+                <th>Active Workload</th>
+                <th>Availability</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. FEEDBACK VIEW (Table 4: Feedback) ================= -->
+    <section id="feedbackView" class="page-view">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Student Feedback & Service Ratings</h2>
+          <p class="section-desc">Verify resolution satisfaction and quality of maintenance service</p>
+        </div>
+      </div>
+
+      <div class="feedback-grid">
+        <!-- Submit Feedback Form -->
+        <div class="form-panel" style="margin: 0; max-width: none;">
+          <h3 style="color: var(--primary); margin-bottom: 1.2rem; font-size: 1.2rem;">
+            <i class="fas fa-comment-dots"></i> Rate a Resolved Complaint
+          </h3>
+
+          <form id="feedbackForm">
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="feedbackComplaintId">Select Resolved Complaint <span class="required">*</span></label>
+              <select id="feedbackComplaintId" class="form-control" required>
+                <!-- Populated dynamically with Resolved complaints -->
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label for="feedbackStudentName">Your Name <span class="required">*</span></label>
+              <input type="text" id="feedbackStudentName" class="form-control" placeholder="Enter your name" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label>Service Rating</label>
+              <div class="star-rating" id="starRatingContainer">
+                <i class="fas fa-star active-star" data-star-val="1"></i>
+                <i class="fas fa-star active-star" data-star-val="2"></i>
+                <i class="fas fa-star active-star" data-star-val="3"></i>
+                <i class="fas fa-star active-star" data-star-val="4"></i>
+                <i class="fas fa-star active-star" data-star-val="5"></i>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+              <label for="feedbackComments">Feedback Remarks <span class="required">*</span></label>
+              <textarea id="feedbackComments" class="form-control" placeholder="Share your experience with the resolution quality and timeliness..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" style="width: 100%; justify-content: center;">
+              <i class="fas fa-paper-plane"></i> Submit Feedback
+            </button>
+          </form>
+        </div>
+
+        <!-- Student Reviews List -->
+        <div>
+          <h3 style="color: var(--text-main); margin-bottom: 1rem; font-size: 1.15rem;">
+            <i class="fas fa-history"></i> Recent Feedback Records (Table: Feedback)
+          </h3>
+          <div id="feedbackCardsContainer">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODAL: SUPABASE CLOUD BACKEND SETTINGS ================= -->
+  <div class="modal-overlay" id="supabaseConfigModal">
+    <div class="modal-dialog">
+      <div class="modal-header" style="background: #f0fdf4;">
+        <h3 style="color: #166534;"><i class="fas fa-database" style="color: #16a34a; margin-right: 8px;"></i> Supabase Backend Setup</h3>
+        <button class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="supabase-guide-box">
+          <strong><i class="fas fa-info-circle"></i> Quick 3-Step Setup:</strong>
+          <ol>
+            <li>Go to <a href="https://supabase.com" target="_blank" style="color: #16a34a; font-weight: 700;">supabase.com</a> & create a free project.</li>
+            <li>In Supabase <strong>SQL Editor</strong>, copy & run the script in <code>database/supabase_schema.sql</code>.</li>
+            <li>Go to <strong>Project Settings &rarr; API</strong>, copy your <strong>Project URL</strong> and <strong>anon public key</strong>, then paste them below!</li>
+          </ol>
+        </div>
+
+        <form id="supabaseConfigForm">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="sbUrlInput">Supabase Project URL <span class="required">*</span></label>
+            <input type="url" id="sbUrlInput" class="form-control" value="https://tgdektiaeqzkhntxtbmf.supabase.co" placeholder="https://xyzcompany.supabase.co" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.4rem;">
+            <label for="sbKeyInput">Supabase Anon Public API Key <span class="required">*</span></label>
+            <input type="text" id="sbKeyInput" class="form-control" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZGVrdGlhZXF6a2hudHh0Ym1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyMzI3OTksImV4cCI6MjEwOTgwODc5OX0.fdnNzVy1WLDriNFhjOXN--zDieyEETk_TOjO66Zgs5g" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required>
+          </div>
+
+          <div class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn-submit" style="background-color: var(--success); flex: 1; justify-content: center;">
+              <i class="fas fa-plug"></i> Connect to Supabase
+            </button>
+            <button type="button" class="btn-reset" id="disconnectSupabaseBtn">
+              Use Local Storage
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: LOGIN & SIGN UP ================= -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="authModalTitle"><i class="fas fa-user-lock" style="color: #2563eb; margin-right: 8px;"></i> Sign In</h3>
+        <button class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Auth Tabs: Sign In / Sign Up -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab-btn active" id="tabBtnSignIn">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tabBtnSignUp">Sign Up</button>
+        </div>
+
+        <!-- 1. SIGN IN FORM -->
+        <form id="loginForm">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="loginUsername">Roll No / Staff ID / Username <span class="required">*</span></label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="Enter Roll No (Student) or Staff ID (Staff) or admin" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="loginPassword">Password <span class="required">*</span></label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.4rem;">
+            <label for="loginRole">Role <span class="required">*</span></label>
+            <select id="loginRole" class="form-control" required>
+              <option value="Student">Student</option>
+              <option value="Staff">Staff</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; font-size: 1rem;">
+            <i class="fas fa-sign-in-alt"></i> Sign In to Dashboard
+          </button>
+
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="javascript:void(0)" id="switchSignUpLink" style="color: var(--primary-light); text-decoration: none; font-size: 0.88rem; font-weight: 600;">
+              Don't have an account? Sign Up here
+            </a>
+          </div>
+
+          <!-- Static Administrator Credentials -->
+          <div class="demo-role-buttons">
+            <p><i class="fas fa-shield-alt"></i> Static Administrator Credentials:</p>
+            <div class="demo-btn-group">
+              <button type="button" class="demo-btn" data-demo-role="Admin" style="background: #eff6ff; border-color: #93c5fd; color: #1e40af; font-weight: 700;">
+                <i class="fas fa-user-shield"></i> 1-Click Auto Fill Admin (admin / 123)
+              </button>
+            </div>
+            <small style="color: #64748b; font-size: 0.76rem; display: block; margin-top: 5px;">
+              * Note: Admin is static. Students and Staff must create accounts using the <strong>Sign Up</strong> tab.
+            </small>
+          </div>
+        </form>
+
+        <!-- 2. SIGN UP FORM -->
+        <form id="signUpForm" style="display: none;">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="signUpRole">Sign Up As <span class="required">*</span></label>
+            <select id="signUpRole" class="form-control" required>
+              <option value="Student">Student</option>
+              <option value="Staff">Staff (Technician)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="signUpId"><span id="signUpIdLabel">Roll No / Student ID</span> <span class="required">*</span></label>
+            <input type="text" id="signUpId" class="form-control" placeholder="Enter your Roll No e.g. 2024CS01" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="signUpFullName">Full Name <span class="required">*</span></label>
+            <input type="text" id="signUpFullName" class="form-control" placeholder="e.g. John Doe" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="signUpDept">Department / Trade <span class="required">*</span></label>
+            <input type="text" id="signUpDept" class="form-control" placeholder="e.g. Computer Science or Electrical" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.4rem;">
+            <label for="signUpPassword">Create Password <span class="required">*</span></label>
+            <input type="password" id="signUpPassword" class="form-control" placeholder="Create a secure password" required>
+          </div>
+
+          <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; font-size: 1rem; background-color: var(--success);">
+            <i class="fas fa-user-plus"></i> Sign Up & Login
+          </button>
+
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="javascript:void(0)" id="switchSignInLink" style="color: var(--primary-light); text-decoration: none; font-size: 0.88rem; font-weight: 600;">
+              Already have an account? Sign In
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ADMIN ALLOCATE STAFF TO COMPLAINT ================= -->
+  <div class="modal-overlay" id="allocateStaffModal">
+    <div class="modal-dialog">
+      <div class="modal-header" style="background: #eff6ff;">
+        <h3 style="color: #1e3a8a;"><i class="fas fa-user-tag" style="color: #2563eb; margin-right: 8px;"></i> Allocate Staff (Admin)</h3>
+        <button class="modal-close-btn" onclick="closeModal('allocateStaffModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="allocateStaffForm">
+          <div class="form-row-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="allocComplaintId">Complaint ID</label>
+              <input type="text" id="allocComplaintId" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="allocStudentName">Student Name & Roll No</label>
+              <input type="text" id="allocStudentName" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="allocLocation">Location & Category</label>
+            <input type="text" id="allocLocation" class="form-control" readonly>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="allocDescription">Problem Description</label>
+            <textarea id="allocDescription" class="form-control" readonly rows="2" style="background-color: #f8fafc;"></textarea>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="allocSelectStaff">Allocate Maintenance Staff <span class="required">*</span></label>
+            <select id="allocSelectStaff" class="form-control" required>
+              <!-- Populated dynamically with on-duty staff -->
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="allocRemarks">Admin Allocation Note (Instructions)</label>
+            <input type="text" id="allocRemarks" class="form-control" placeholder="e.g. Priority task: please inspect and fix today.">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" style="background-color: var(--primary-light); flex: 1; justify-content: center;">
+              <i class="fas fa-check-circle"></i> Confirm Allocation
+            </button>
+            <button type="button" class="btn-cancel" onclick="closeModal('allocateStaffModal')">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: STAFF MARK AS DONE / RESOLVED ================= -->
+  <div class="modal-overlay" id="staffDoneModal">
+    <div class="modal-dialog">
+      <div class="modal-header" style="background: #f0fdf4;">
+        <h3 style="color: #166534;"><i class="fas fa-check-double" style="color: #16a34a; margin-right: 8px;"></i> Mark Problem as Done</h3>
+        <button class="modal-close-btn" onclick="closeModal('staffDoneModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="staffDoneForm">
+          <input type="hidden" id="doneComplaintId">
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+              <span style="color: #64748b; font-size: 0.85rem;">Complaint:</span>
+              <strong id="doneDisplayId" style="color: #2563eb;">-</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+              <span style="color: #64748b; font-size: 0.85rem;">Location:</span>
+              <span id="doneDisplayLocation" style="font-weight: 600;">-</span>
+            </div>
+            <div style="margin-top: 0.4rem;">
+              <span style="color: #64748b; font-size: 0.85rem; display: block;">Issue Reported:</span>
+              <p id="doneDisplayDesc" style="font-size: 0.9rem; color: #1e293b; margin-top: 2px;">-</p>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="doneResolutionRemarks">Work Done / Resolution Remarks <span class="required">*</span></label>
+            <textarea id="doneResolutionRemarks" class="form-control" placeholder="Describe the repair performed (e.g. Replaced fan regulator knob and tested operation successfully)..." required rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" style="background-color: var(--success); flex: 1; justify-content: center; font-size: 1rem;">
+              <i class="fas fa-check"></i> Mark as Resolved
+            </button>
+            <button type="button" class="btn-cancel" onclick="closeModal('staffDoneModal')">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: RESOLVE COMPLAINT (Image 5 Wireframe / Fallback) ================= -->
+  <div class="modal-overlay" id="resolveComplaintModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fas fa-tools" style="color: #10b981; margin-right: 8px;"></i> Resolve Complaint</h3>
+        <button class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="resolveComplaintForm">
+          <div class="form-row-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="resolveComplaintId">Complaint ID</label>
+              <input type="text" id="resolveComplaintId" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="resolveStudentName">Student Name</label>
+              <input type="text" id="resolveStudentName" class="form-control" readonly>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="resolveLocation">Location</label>
+            <input type="text" id="resolveLocation" class="form-control" readonly>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="resolveComplaintText">Complaint</label>
+            <input type="text" id="resolveComplaintText" class="form-control" readonly>
+          </div>
+
+          <div class="form-row-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label for="resolveAssignedStaff">Assigned Staff</label>
+              <select id="resolveAssignedStaff" class="form-control">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="resolveStatus">Status</label>
+              <select id="resolveStatus" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="resolveRemarks">Resolution Remarks</label>
+            <textarea id="resolveRemarks" class="form-control" placeholder="Enter remarks on work performed or components replaced..."></textarea>
+          </div>
+
+          <!-- Exact Buttons from Image 5: [Resolve complaint] [Cancel] -->
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" style="background-color: var(--success);">
+              <i class="fas fa-check"></i> Resolve Complaint
+            </button>
+            <button type="button" class="btn-cancel" id="cancelResolveBtn">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SUBMISSION SUCCESS RECEIPT ================= -->
+  <div class="modal-overlay" id="successReceiptModal">
+    <div class="modal-dialog">
+      <div class="modal-header" style="background: #f0fdf4;">
+        <h3 style="color: #166534;"><i class="fas fa-check-circle" style="color: #16a34a;"></i> Complaint Registered</h3>
+        <button class="modal-close-btn" onclick="closeModal('successReceiptModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #475569; margin-bottom: 1.2rem;">
+          Your maintenance complaint has been successfully recorded in the campus tracking database.
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #64748b;">Complaint ID:</span>
+            <strong id="receiptComplaintId" style="color: #2563eb; font-size: 1rem;">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #64748b;">Student:</span>
+            <strong id="receiptStudentName">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #64748b;">Category:</span>
+            <span id="receiptCategory">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #64748b;">Location:</span>
+            <span id="receiptLocation">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #64748b;">Date:</span>
+            <span id="receiptDate">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #64748b;">Assigned Staff:</span>
+            <span id="receiptAssigned" style="font-weight: 600; color: #0d9488;">-</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; justify-content: flex-end;">
+          <button class="btn-reset" onclick="window.print()">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button class="btn-submit" onclick="closeModal('successReceiptModal'); navigateToView('trackStatusView');">
+            <i class="fas fa-search-location"></i> Track Live Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h4>Campus Maintenance and Complaint Tracking System</h4>
+        <p>
+          Online Smart Campus Complaint & Maintenance System designed to bridge the communication between 
+          students and campus facility departments, eliminating paperwork and speeding up issue resolutions.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h5>Quick Navigation</h5>
+        <ul>
+          <li><a href="javascript:void(0)" data-target-view="homeView">Home Page</a></li>
+          <li><a href="javascript:void(0)" data-target-view="submitView">Submit Complaint</a></li>
+          <li><a href="javascript:void(0)" data-target-view="trackStatusView">Track Status</a></li>
+          <li><a href="javascript:void(0)" data-target-view="dashboardView">Live Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Database Tables</h5>
+        <ul>
+          <li><a href="javascript:void(0)" data-target-view="dashboardView">1. Users</a></li>
+          <li><a href="javascript:void(0)" data-target-view="dashboardView">2. Complaints</a></li>
+          <li><a href="javascript:void(0)" data-target-view="staffView">3. Staff</a></li>
+          <li><a href="javascript:void(0)" data-target-view="feedbackView">4. Feedback</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Technical Architecture</h5>
+        <ul>
+          <li><span style="color: #cbd5e1;"><i class="fab fa-html5"></i> Frontend:</span> HTML5, CSS3, JS</li>
+          <li><span style="color: #cbd5e1;"><i class="fas fa-database"></i> Cloud Backend:</span> Supabase (PostgreSQL)</li>
+          <li><span style="color: #cbd5e1;"><i class="fas fa-bolt"></i> Realtime:</span> WebSockets Sync</li>
+          <li><span style="color: #cbd5e1;"><i class="fas fa-laptop-code"></i> IDE:</span> Visual Studio / VS Code</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 Campus Maintenance and Complaint Tracking System. All rights reserved.</div>
+      <div>Designed & Developed for College Campus Facilities</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/supabase-client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
